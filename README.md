@@ -31,6 +31,7 @@ It'll tell you the address that the server is bound to, which is required for th
 Start the Rails application:
 
 ```
+rake db:setup
 API_URL=<ADDRESS_OF_THE_gRPC_SERVER> ./bin/rails server
 ```
 
