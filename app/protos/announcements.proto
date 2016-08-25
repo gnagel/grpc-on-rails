@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package API.Announcements;
+
+service Announcements {
+  rpc Search (Query) returns (SearchResult) {}
+  rpc Get (Id) returns (LookupResult) {}
+}
+
+message Query {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message Id {
+  int32 id = 1;
+}
+
+message SearchResult {
+  message Hit {
+    int32 id = 1;
+    string title = 2;
+    string authorName = 3;
+    int64 publishedAt = 4;
+  }
+
+  int32 total = 1;
+  repeated Hit hit = 2;
+}
+
+message LookupResult {
+  Announcement announcement = 1;
+}
+
+message Announcement {
+  int32 id = 1;
+  string title = 2;
+  string authorName = 3;
+  int64 publishedAt = 4;
+  string body = 5;
+}

@@ -1,6 +1,9 @@
 class Api::V1::AnnouncementsController < ApplicationController
   def index
-    @announcements = Announcement.most_recent_first.limit(params.fetch(:limit, 20))
+    @announcements = Announcement.
+      most_recent_first.
+      select(:id, :title, :author_name, :published_at).
+      limit(params.fetch(:limit, 20))
     render json: @announcements
   end
 
