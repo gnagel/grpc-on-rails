@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH << File.expand_path("../../lib", __FILE__)
+
+Dir[File.expand_path("../../app/*", __FILE__)].each do |entry|
+  if File.directory?(entry)
+    $LOAD_PATH << entry
+  end
+end
+
+require "grpc_server"
+
+GrpcServer.new(ARGV).start
