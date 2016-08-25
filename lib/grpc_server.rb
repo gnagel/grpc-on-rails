@@ -1,12 +1,24 @@
 require "greeter_service"
 require "logger"
 
+module GRPC
+  def self.logger=(logger)
+    @logger = logger
+  end
+
+  def self.logger
+    @logger || LOGGER
+  end
+end
+
 class GrpcServer
   def initialize(argv)
     @argv = argv
   end
 
   def start
+    GRPC.logger = logger
+
     s = GRPC::RpcServer.new
     s.add_http2_port(listen_address, :this_port_is_insecure)
     logger.info "Running insecurely on #{listen_address}"
@@ -21,7 +33,9 @@ class GrpcServer
   end
 
   def build_logger
-    Logger.new(log_device, log_level)
+    logger = Logger.new(log_device)
+    logger.level = log_level
+    logger
   end
 
   def log_device
