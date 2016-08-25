@@ -8,7 +8,7 @@ I see no way of having both the Rails server *and* the gRPC server served in the
 
 Server is implemented as a separate server that still has optional access to the codebase in the Rails app.
 
-**TODO:** How hard would it be to inject a proper ActiveRecord in the gRPC server?
+**TODO:** ActiveRecord inside the gRPC server hangs everything. SQLite?
 
 Rails has an API client implementation it can use to talk to this separate process.
 
@@ -51,4 +51,5 @@ curl -s -X POST -H "Content-Type: application/json" -d '{"hello_request": {"name
 * Documentation is still very basic and hard to grasp.
 * The generated code is super duper simple. Should probably invest in some sort of "active record"-like decorator.
 * How hard would it be to attach a `grpc-gateway` JSON-API inside the Rails app? It would be cool to mount it somehow so the Rails app can be a proxy to the gRPC API for older clients.
+* Seems like ActiveRecord ruins the client somehow. Probably because I'm on SQLite. If I get a multi-user DB, this might work better.
 
