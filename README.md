@@ -8,8 +8,6 @@ I see no way of having both the Rails server *and* the gRPC server served in the
 
 Server is implemented as a separate server that still has optional access to the codebase in the Rails app.
 
-**TODO:** ActiveRecord inside the gRPC server hangs everything. SQLite?
-
 Rails has an API client implementation it can use to talk to this separate process.
 
 ### Running this yourself
@@ -23,7 +21,7 @@ bundle install
 Start the gRPC server:
 
 ```
-./bin/grpc_server
+cd api && ./bin/api-server
 ```
 
 It'll tell you the address that the server is bound to, which is required for the next step.
@@ -32,7 +30,7 @@ Start the Rails application:
 
 ```
 rake db:setup
-API_URL=<ADDRESS_OF_THE_gRPC_SERVER> ./bin/rails server
+API_URL=<ADDRESS_OF_THE_API_SERVER> ./bin/rails server
 ```
 
 ### Calling the API
@@ -40,16 +38,25 @@ API_URL=<ADDRESS_OF_THE_gRPC_SERVER> ./bin/rails server
 You can call it using curl:
 
 ```
-curl -s -X POST -H "Content-Type: application/json" -d '{"hello_request": {"name": "Jason", "informal": false}}' localhost:3000/greet | python -mjson.tool
+curl -s localhost:3000/api/v2/announcements | python -mjson.tool
 ```
+
+## Code generation
+
+Both apps have Rake tasks for generating code. It's not very clever right now, but call `rake protos` in the API app, then `rake protos:copy` in the Rails app to copy the results into the Rails app.
+
+This could simulate a new API server version being developed and deployed without the Rails app getting the new definitions yet.
 
 ## Thoughts so far
 
 * The gRPC module requires us to override the logger methods to get a log. Sounds a bit strange, but okay.
 * If a server implementation crashes, the gRPC server does not go down.
   * How can I catch these errors? I want to die in some cases, or at least send these errors somewhere. It seems to just log them.
+  * I've had several errors that just hangs the process completely. Would this be avoided using tests? Is this only happening when the server is actually listening?
 * Documentation is still very basic and hard to grasp.
 * The generated code is super duper simple. Should probably invest in some sort of "active record"-like decorator.
 * How hard would it be to attach a `grpc-gateway` JSON-API inside the Rails app? It would be cool to mount it somehow so the Rails app can be a proxy to the gRPC API for older clients.
-* Seems like ActiveRecord ruins the client somehow. Probably because I'm on SQLite. If I get a multi-user DB, this might work better.
+* Making clients are super duper ultra simple. Nice!
+* How can I pass metadata like request ID?
+* How do I test the server?
 

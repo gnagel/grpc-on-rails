@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+unless defined?(Rails)
+  full_path = File.expand_path(__FILE__)
+  Dir.chdir("..")
+  exec "./bin/rails", "runner", full_path, *ARGV
+end
+
+File.expand_path("../..", __FILE__).tap do |root|
+  require File.join(root, "app", "api_server")
+  ApiServer.root = root
+
+  $LOAD_PATH.replace(
+    [
+      ApiServer.root.join("lib"),
+      ApiServer.root.join("app", "services"),
+      ApiServer.root.join("app", "mappers"),
+    ] +
+    $LOAD_PATH
+  )
+end
+
+require "grpc_server"
+GrpcServer.new(ARGV, ApiServer).run

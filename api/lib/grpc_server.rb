@@ -1,32 +1,29 @@
-require "greeter_service"
-require "announcements_service"
 require "logger"
 
-module GRPC
-  def self.logger=(logger)
-    @logger = logger
-  end
-
-  def self.logger
-    @logger || LOGGER
-  end
-end
+require "grpc_logger"
 
 class GrpcServer
-  def initialize(argv)
+  attr_reader :argv, :handler
+
+  def initialize(argv, handler)
     @argv = argv
+    @handler = handler
   end
 
-  def start
+  def run
+    handler.logger = logger
     GRPC.logger = logger
-    Rails.logger = logger
+    if defined?(Rails)
+      Rails.logger = logger
+      ActiveRecord::Base.logger = logger
+    end
 
     s = GRPC::RpcServer.new
     s.add_http2_port(listen_address, :this_port_is_insecure)
-    logger.info "Running insecurely on #{listen_address}"
 
-    s.handle(GreeterService.new)
-    s.handle(AnnouncementsService.new)
+    handler.setup_services(s)
+
+    logger.info "Running insecurely on #{listen_address}"
     s.run_till_terminated
   end
 

@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
-  get "/" => "greetings#new"
-  post "/greet" => "greetings#create"
+  get "/" => "greetings#index"
 
   # Old API that we're extracting to gRPC
   scope "/api/v1" do

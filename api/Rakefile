@@ -1,0 +1,21 @@
+PROTO_DIRECTORY = "protos".freeze
+PROTO_OUTPUT = "lib".freeze
+
+desc "Compile all protos"
+directory PROTO_DIRECTORY
+
+directory PROTO_OUTPUT
+
+Dir["#{PROTO_DIRECTORY}/*.proto"].each do |file|
+  desc "Compile #{file}"
+  task file => PROTO_OUTPUT do
+    sh(
+      "bundle", "exec", "grpc_tools_ruby_protoc",
+      "-I", PROTO_DIRECTORY,
+      "--ruby_out=#{PROTO_OUTPUT}",
+      "--grpc_out=#{PROTO_OUTPUT}",
+      file
+    )
+  end
+  task PROTO_DIRECTORY => file
+end
